@@ -1,45 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0f" />
-    <script>
-      (function () {
-        try {
-          var t = localStorage.getItem('theme');
-          if (t === 'light') return;
-          document.documentElement.classList.add('dark');
-        } catch (e) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
-
-    <title>Konakala Krishna Teja | Software Engineer & AI Builder</title>
-    <meta name="description" content="Portfolio of Konakala Krishna Teja — Computer Science Engineering student at SRM University AP (CGPA 9.31), building AI-driven and full-stack web products. Explore projects, certifications, and skills." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0c10" />
+    
+    <!-- Preconnect + Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    
+    <title>Konakala Krishna Teja · Systems & AI Engineer</title>
+    <meta name="description" content="Konakala Krishna Teja — Computer Science @ SRM AP (9.31 CGPA). Building resilient systems, AI tooling, and immersive digital experiences." />
+    <meta name="keywords" content="Konakala Krishna Teja, Systems Engineer, AI, React, SRM, Portfolio" />
     <meta name="author" content="Konakala Krishna Teja" />
-    <meta name="keywords" content="Krishna Teja, Konakala Krishna Teja, SRM University AP, Software Engineer, Full Stack Developer, AI Engineer, React Developer, Portfolio" />
     <link rel="canonical" href="https://krishnakonakala.github.io/" />
-
-    <!-- Open Graph -->
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Konakala Krishna Teja · Systems & AI" />
+    <meta property="og:description" content="Building resilient systems, AI tooling, and immersive digital experiences." />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Konakala Krishna Teja | Software Engineer & AI Builder" />
-    <meta property="og:description" content="Computer Science Engineering student at SRM University AP (CGPA 9.31) building AI-driven and full-stack web products." />
     <meta property="og:url" content="https://krishnakonakala.github.io/" />
-    <meta property="og:site_name" content="Krishna Teja Portfolio" />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:locale" content="en_US" />
-
+    <meta property="og:image" content="/og-preview.png" />
+    
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Konakala Krishna Teja | Software Engineer & AI Builder" />
-    <meta name="twitter:description" content="Computer Science Engineering student at SRM University AP (CGPA 9.31) building AI-driven and full-stack web products." />
-    <meta name="twitter:image" content="/og-image.png" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
+    <meta name="twitter:title" content="Konakala Krishna Teja" />
+    <meta name="twitter:description" content="CS student @ SRM AP. 9.31 CGPA. Explore projects, certifications & engineering mindset." />
+    
     <!-- Structured Data -->
     <script type="application/ld+json">
       {
@@ -48,25 +37,15 @@
         "name": "Konakala Krishna Teja",
         "url": "https://krishnakonakala.github.io/",
         "jobTitle": "Computer Science Engineering Student",
-        "affiliation": {
-          "@type": "CollegeOrUniversity",
-          "name": "SRM University AP"
-        },
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Vijayawada",
-          "addressRegion": "Andhra Pradesh",
-          "addressCountry": "IN"
-        },
-        "email": "mailto:konakalakrishnateja01@gmail.com",
+        "affiliation": { "@type": "CollegeOrUniversity", "name": "SRM University AP" },
         "sameAs": [
-          "https://www.linkedin.com/in/krishna-teja-konakala-995b1432b",
-          "https://github.com/krishnakonakala"
+          "https://github.com/krishnakonakala",
+          "https://www.linkedin.com/in/krishna-teja-konakala-995b1432b"
         ]
       }
     </script>
   </head>
-  <body>
+  <body class="bg-bg text-ink antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

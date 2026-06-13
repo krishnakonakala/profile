@@ -35,8 +35,10 @@ import {
   X,
   History,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  Globe,
 } from 'lucide-react';
+import { translations, Lang } from './translations';
 
 // Define Interface for project
 interface Project {
@@ -64,6 +66,8 @@ interface Certification {
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [lang, setLang] = useState<Lang>('en');
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [skillSearchQuery, setSkillSearchQuery] = useState('');
   const [copiedText, setCopiedText] = useState('');
@@ -71,7 +75,11 @@ export default function App() {
   const [resumeOpen, setResumeOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const langMenuRef = useRef<HTMLDivElement>(null);
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
+
+  // Current translation shorthand
+  const t = translations[lang];
 
   const handleHeroMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = heroRef.current?.getBoundingClientRect();
@@ -111,6 +119,31 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  // Language Management
+  useEffect(() => {
+    const savedLang = localStorage.getItem('lang') as Lang | null;
+    if (savedLang && (savedLang === 'en' || savedLang === 'hi')) {
+      setLang(savedLang);
+    }
+  }, []);
+
+  // Close lang menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const switchLang = (l: Lang) => {
+    setLang(l);
+    localStorage.setItem('lang', l);
+    setLangMenuOpen(false);
+  };
 
   const toggleTheme = () => {
     const updatedTheme = theme === 'dark' ? 'light' : 'dark';
@@ -160,39 +193,18 @@ export default function App() {
     setTimeout(() => setCopiedText(''), 2000);
   };
 
-  // Skill Database
-  const skillCategories = [
-    {
-      name: "Programming Languages",
-      icon: <Code className="w-5 h-5 text-indigo-500" />,
-      skills: ["Python", "C", "JavaScript", "HTML5", "CSS3", "SQL", "C#"]
-    },
-    {
-      name: "Web Development",
-      icon: <Laptop className="w-5 h-5 text-cyan-500" />,
-      skills: ["Frontend Development", "Responsive Web Design", "Bootstrap", "Tailwind CSS", "React"]
-    },
-    {
-      name: "Version Control",
-      icon: <Github className="w-5 h-5 text-neutral-400" />,
-      skills: ["Git", "GitHub"]
-    },
-    {
-      name: "AI & Productivity",
-      icon: <Sparkles className="w-5 h-5 text-amber-500" />,
-      skills: ["ChatGPT", "Prompt Engineering", "AI Website Builders", "AI Productivity Tools"]
-    },
-    {
-      name: "Development Tools",
-      icon: <Layers className="w-5 h-5 text-emerald-500" />,
-      skills: ["VS Code", "Canva", "Figma", "Microsoft Office"]
-    },
-    {
-      name: "Soft Skills",
-      icon: <User className="w-5 h-5 text-rose-500" />,
-      skills: ["Communication", "Leadership", "Problem Solving", "Critical Thinking", "Adaptability", "Teamwork", "Time Management", "Presentation Skills", "Analytical Reasoning"]
-    }
-  ];
+  // Skill categories from translations
+  const skillCategories = t.skills.categories.map((cat, idx) => {
+    const icons = [
+      <Code className="w-5 h-5 text-indigo-500" />,
+      <Laptop className="w-5 h-5 text-cyan-500" />,
+      <Github className="w-5 h-5 text-neutral-400" />,
+      <Sparkles className="w-5 h-5 text-amber-500" />,
+      <Layers className="w-5 h-5 text-emerald-500" />,
+      <User className="w-5 h-5 text-rose-500" />,
+    ];
+    return { ...cat, icon: icons[idx] };
+  });
 
   // Projects Database
   const projectsList: Project[] = [
@@ -350,31 +362,31 @@ export default function App() {
   const timelineEvents = [
     {
       id: 1,
-      period: "Current Focus (2025 - Present)",
-      title: "Computer Science Engineering at SRM University AP",
-      subtitle: "B.Tech Journey & Innovation Exploration",
-      description: "Maintaining competitive academic records with a stellar CGPA of 9.31. Actively engaging in foundational hackathons, programming workflows, and web product deployment."
+      period: lang === 'hi' ? 'वर्तमान फोकस (2025 - अभी)' : "Current Focus (2025 - Present)",
+      title: lang === 'hi' ? 'SRM विश्वविद्यालय AP में कंप्यूटर साइंस इंजीनियरिंग' : "Computer Science Engineering at SRM University AP",
+      subtitle: lang === 'hi' ? 'B.Tech यात्रा और नवाचार अन्वेषण' : "B.Tech Journey & Innovation Exploration",
+      description: lang === 'hi' ? '9.31 CGPA के साथ प्रतिस्पर्धात्मक शैक्षणिक रिकॉर्ड बनाए रखना। हैकाथॉन, प्रोग्रामिंग वर्कफ्लो और वेब उत्पाद परिनियोजन में सक्रिय भागीदारी।' : "Maintaining competitive academic records with a stellar CGPA of 9.31. Actively engaging in foundational hackathons, programming workflows, and web product deployment."
     },
     {
       id: 2,
-      period: "Early 2025",
-      title: "Professional Certification Rush",
-      subtitle: "Securing Credentials from Harvard & Microsoft",
-      description: "Completed Harvard CS50's Python framework and the Foundational C# program by Microsoft with FreeCodeCamp, alongside core university web modules."
+      period: lang === 'hi' ? 'प्रारंभिक 2025' : "Early 2025",
+      title: lang === 'hi' ? 'पेशेवर प्रमाणीकरण अभियान' : "Professional Certification Rush",
+      subtitle: lang === 'hi' ? 'Harvard और Microsoft से प्रमाण-पत्र सुरक्षित करना' : "Securing Credentials from Harvard & Microsoft",
+      description: lang === 'hi' ? "Harvard CS50's Python फ्रेमवर्क और Microsoft द्वारा Foundational C# कार्यक्रम पूर्ण किया।" : "Completed Harvard CS50's Python framework and the Foundational C# program by Microsoft with FreeCodeCamp, alongside core university web modules."
     },
     {
       id: 3,
-      period: "Late 2024",
-      title: "APTRANSCO Future Grid Construction",
-      subtitle: "Translating Advanced Concepts into Practice",
-      description: "Developed an interactive web dashboard for monitoring power grids, laying down strong practical blocks in HTML, CSS, and modern user-interaction libraries."
+      period: lang === 'hi' ? 'अंत 2024' : "Late 2024",
+      title: lang === 'hi' ? 'APTRANSCO फ्यूचर ग्रिड निर्माण' : "APTRANSCO Future Grid Construction",
+      subtitle: lang === 'hi' ? 'उन्नत अवधारणाओं को व्यवहार में लाना' : "Translating Advanced Concepts into Practice",
+      description: lang === 'hi' ? 'पावर ग्रिड निगरानी के लिए एक इंटरैक्टिव वेब डैशबोर्ड विकसित किया।' : "Developed an interactive web dashboard for monitoring power grids, laying down strong practical blocks in HTML, CSS, and modern user-interaction libraries."
     },
     {
       id: 4,
-      period: "2022 - 2024",
-      title: "Intermediate Board Examinations",
-      subtitle: "Outstanding Academic Foundation",
-      description: "Graduated Intermediate Education with a superb cumulative score of 95.8%, reinforcing strong analytical reasoning and logical computation."
+      period: lang === 'hi' ? '2022 - 2024' : "2022 - 2024",
+      title: lang === 'hi' ? 'इंटरमीडिएट बोर्ड परीक्षाएँ' : "Intermediate Board Examinations",
+      subtitle: lang === 'hi' ? 'उत्कृष्ट शैक्षणिक नींव' : "Outstanding Academic Foundation",
+      description: lang === 'hi' ? '95.8% के शानदार संचयी स्कोर के साथ इंटरमीडिएट शिक्षा पूरी की।' : "Graduated Intermediate Education with a superb cumulative score of 95.8%, reinforcing strong analytical reasoning and logical computation."
     }
   ];
 
@@ -412,13 +424,13 @@ export default function App() {
     setSandboxInput('');
     const techFormatted = project.techStack.join(', ');
     setSandboxOutput([
-      `Initializing Virtual Sandbox Node for: [${project.title.toUpperCase()}]`,
-      `Secure HTTPS tunneling... CONNECTED`,
-      `Host: github.com/krishnakonakala`,
-      `Active Stack Detected: ${techFormatted}`,
-      `Description: ${project.description}`,
-      `Status indicator: ${project.metrics}`,
-      `Type 'help' or 'run' or 'features' or 'exit' below to test system bindings.`
+      t.sandbox.init(project.title),
+      t.sandbox.tunnel,
+      t.sandbox.host,
+      t.sandbox.stack(techFormatted),
+      t.sandbox.desc(project.description),
+      t.sandbox.status(project.metrics),
+      t.sandbox.helpHint,
     ]);
   };
 
@@ -435,12 +447,12 @@ export default function App() {
       return;
     } else if (cmd === 'help') {
       response = [
-        `Command Options Available:`,
-        `  run      - Starts a simulated execution cycle of the project`,
-        `  features - Summarizes distinct modular functions coded`,
-        `  tech     - Lists library versions, framework parameters`,
-        `  clear    - Wipes system console buffers`,
-        `  exit     - Terminates virtual port integration`
+        t.sandbox.helpTitle,
+        t.sandbox.helpRun,
+        t.sandbox.helpFeatures,
+        t.sandbox.helpTech,
+        t.sandbox.helpClear,
+        t.sandbox.helpExit,
       ];
     } else if (cmd === 'clear') {
       setSandboxOutput([]);
@@ -448,35 +460,40 @@ export default function App() {
       return;
     } else if (cmd === 'run') {
       response = [
-        `> boot --release --target=localhost`,
-        `[INFO] Loading dependencies from repository manifest... DONE`,
-        `[SUCCESS] App started on port 3000 inside simulated runtime!`,
-        `[LIVE-STREAM] Dynamic parameters optimal. System status: ${proj?.metrics || 'Active'}`
+        t.sandbox.runBoot,
+        t.sandbox.runLoading,
+        t.sandbox.runSuccess,
+        t.sandbox.runStream(proj?.metrics || 'Active'),
       ];
     } else if (cmd === 'features') {
       response = [
-        `Feature Modules Coded:`,
+        t.sandbox.featuresTitle,
         ...(proj?.features.map((f, i) => `  * [${i + 1}] ${f}`) || [`No registered lists.`])
       ];
     } else if (cmd === 'tech') {
       response = [
-        `Tech Core Stack:`,
-        ...(proj?.techStack.map(t => `  > ${t}`) || [])
+        t.sandbox.techTitle,
+        ...(proj?.techStack.map(tech => `  > ${tech}`) || [])
       ];
     } else {
       response = [
-        `Error: command '${cmd}' undefined in basic sandbox environment.`,
-        `Write 'help' to review catalog settings.`
+        t.sandbox.unknownCmd(cmd),
+        t.sandbox.helpSuggestion,
       ];
     }
 
-    setSandboxOutput(prev => [...prev, `krishnateja@sandbox:~$ ${sandboxInput}`, ...response]);
+    setSandboxOutput(prev => [...prev, `${t.projects.consolePrompt} ${sandboxInput}`, ...response]);
     setSandboxInput('');
   };
 
   const filteredProjects = activeCategory === 'All' 
     ? projectsList 
     : projectsList.filter(p => p.category === activeCategory);
+
+  const langLabels: Record<Lang, { flag: string; label: string; short: string }> = {
+    en: { flag: '🇬🇧', label: 'English', short: 'EN' },
+    hi: { flag: '🇮🇳', label: 'हिंदी', short: 'HI' },
+  };
 
   return (
     <div className={`min-h-screen transition-colors duration-350 bg-neutral-50 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 grid-mesh selection:bg-indigo-500/20 selection:text-indigo-500`}>
@@ -503,7 +520,7 @@ export default function App() {
                 K. Krishna Teja
               </span>
               <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
-                SRM CSE Student
+                {t.nav.subtitle}
               </span>
             </div>
           </a>
@@ -511,12 +528,12 @@ export default function App() {
           {/* Nav Items - Desktop */}
           <nav id="desktop-nav" className="hidden md:flex items-center gap-1 text-sm font-medium">
             {[
-              { id: 'about', label: 'About' },
-              { id: 'skills', label: 'Skills' },
-              { id: 'projects', label: 'Projects' },
-              { id: 'certifications', label: 'Certifications' },
-              { id: 'experience', label: 'Timeline' },
-              { id: 'contact', label: 'Contact' },
+              { id: 'about', label: t.nav.about },
+              { id: 'skills', label: t.nav.skills },
+              { id: 'projects', label: t.nav.projects },
+              { id: 'certifications', label: t.nav.certifications },
+              { id: 'experience', label: t.nav.timeline },
+              { id: 'contact', label: t.nav.contact },
             ].map((section) => (
               <a
                 key={section.id}
@@ -533,7 +550,41 @@ export default function App() {
           </nav>
 
           {/* Action Tools */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+
+            {/* Language Switcher */}
+            <div className="relative" ref={langMenuRef}>
+              <button
+                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                className="flex items-center gap-1.5 p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 transition-all duration-200 shadow-sm text-xs font-semibold font-mono"
+                aria-label="Switch Language"
+                title="Switch Language"
+              >
+                <Globe className="w-4 h-4 text-indigo-500" />
+                <span className="hidden sm:inline">{langLabels[lang].short}</span>
+              </button>
+              
+              {langMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-36 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl z-50 overflow-hidden animate-slide-up">
+                  {(Object.keys(langLabels) as Lang[]).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => switchLang(l)}
+                      className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left transition-colors ${
+                        lang === l
+                          ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold'
+                          : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                      }`}
+                    >
+                      <span>{langLabels[l].flag}</span>
+                      <span>{langLabels[l].label}</span>
+                      {lang === l && <CheckCircle2 className="w-3.5 h-3.5 ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               id="theme-toggle-btn"
               onClick={toggleTheme}
@@ -549,7 +600,7 @@ export default function App() {
               className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-900 text-neutral-100 dark:bg-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 shadow transition-all duration-200 hover:-translate-y-0.5"
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Resume Summary</span>
+              <span>{t.nav.resumeSummary}</span>
             </button>
           </div>
         </div>
@@ -558,11 +609,11 @@ export default function App() {
       {/* PHONE NAVIGATION TABS bar */}
       <div id="mobile-nav-bar" className="md:hidden fixed bottom-4 left-4 right-4 z-40 px-3 py-2.5 rounded-2xl glass-panel shadow-2xl flex justify-around items-center gap-1">
         {[
-          { id: 'about', label: 'About', icon: <User className="w-4 h-5" /> },
-          { id: 'skills', label: 'Skills', icon: <Code className="w-4 h-5" /> },
-          { id: 'projects', label: 'Projects', icon: <FolderDot className="w-4 h-5" /> },
-          { id: 'certifications', label: 'Certs', icon: <Award className="w-4 h-5" /> },
-          { id: 'contact', label: 'Contact', icon: <Send className="w-4 h-5" /> }
+          { id: 'about', label: t.nav.about, icon: <User className="w-4 h-5" /> },
+          { id: 'skills', label: t.nav.skills, icon: <Code className="w-4 h-5" /> },
+          { id: 'projects', label: t.nav.projects, icon: <FolderDot className="w-4 h-5" /> },
+          { id: 'certifications', label: t.nav.certifications.slice(0, 5), icon: <Award className="w-4 h-5" /> },
+          { id: 'contact', label: t.nav.contact, icon: <Send className="w-4 h-5" /> }
         ].map((item) => (
           <a
             key={item.id}
@@ -588,8 +639,6 @@ export default function App() {
           onMouseMove={handleHeroMouseMove}
           className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center pt-6 md:pt-12 overflow-hidden"
         >
-
-          {/* Mouse-follow glow */}
           <div
             className="hidden lg:block absolute inset-0 pointer-events-none -z-10 transition-opacity duration-500"
             style={{
@@ -598,7 +647,6 @@ export default function App() {
             aria-hidden="true"
           ></div>
 
-          {/* Subtle Background Accent Blurs */}
           <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full aurora-blob pointer-events-none -z-10 animate-pulse-slow animate-aurora"></div>
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-cyan-500/10 dark:bg-cyan-500/5 rounded-full aurora-blob pointer-events-none -z-10 animate-pulse-slow"></div>
 
@@ -611,11 +659,11 @@ export default function App() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span>Open to Internships & Hackathons</span>
+                <span>{t.hero.openTo}</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800/80 bg-white/50 dark:bg-neutral-900/40 text-xs font-mono text-indigo-600 dark:text-indigo-400 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Verified Profile</span>
+                <span>{t.hero.verified}</span>
               </div>
             </div>
 
@@ -625,12 +673,12 @@ export default function App() {
                 KONAKALA <span className="text-gradient-accent">KRISHNA TEJA</span>
               </h1>
               <p className="text-lg sm:text-xl font-medium tracking-tight text-neutral-500 dark:text-neutral-400 max-w-xl mx-auto lg:mx-0">
-                Building Intelligent Digital Solutions Through Code, AI & Innovation
+                {t.hero.tagline}
               </p>
             </div>
 
             <p className="text-base text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              I am a highly motivated Computer Science Engineering student at SRM University AP with a strong passion for software development, artificial intelligence, and modern web technologies. I enjoy transforming ideas into impactful digital experiences while solving real-world challenges.
+              {t.hero.bio}
             </p>
 
             {/* CTA action buttons */}
@@ -639,37 +687,36 @@ export default function App() {
                 href="#projects" 
                 className="glow-on-hover inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 hover:-translate-y-0.5"
               >
-                <span>View Projects</span>
+                <span>{t.hero.viewProjects}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
               <a 
                 href="#skills" 
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold border border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition-all duration-200 hover:-translate-y-0.5 shadow-sm"
               >
-                <span>Explore Skills</span>
+                <span>{t.hero.exploreSkills}</span>
               </a>
               <button 
                 onClick={() => setResumeOpen(true)}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-neutral-900/5 hover:bg-neutral-900/10 dark:bg-white/5 dark:hover:bg-white/10 text-neutral-900 dark:text-white transition-all duration-200 hover:-translate-y-0.5"
               >
                 <Download className="w-4 h-4" />
-                <span>Resume CV</span>
+                <span>{t.hero.resumeCV}</span>
               </button>
               <a 
                 href="#contact" 
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
               >
-                <span>Contact Me</span>
+                <span>{t.hero.contactMe}</span>
               </a>
             </div>
 
             {/* Quick social channel anchors */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 border-t border-neutral-200/50 dark:border-neutral-800/50 text-xs font-mono text-neutral-500 dark:text-neutral-400 select-none">
-              <span className="font-semibold uppercase tracking-wider text-neutral-400">Connect:</span>
+              <span className="font-semibold uppercase tracking-wider text-neutral-400">{t.hero.connect}</span>
               <a 
                 href="mailto:konakalakrishnateja01@gmail.com" 
                 className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                title="Send active email to Krishna"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>Email</span>
@@ -699,7 +746,6 @@ export default function App() {
           <div className="lg:col-span-5 flex justify-center items-center relative">
             <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full flex items-center justify-center p-3 border-2 border-dashed border-neutral-200/80 dark:border-white/10">
               
-              {/* Actual Professional photograph container */}
               <div className="w-full h-full rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-800 shadow-2xl relative group bg-neutral-100 dark:bg-neutral-900">
                 <img
                   src={profilePhoto}
@@ -708,7 +754,7 @@ export default function App() {
                   height={1376}
                   className="w-full h-full object-cover transition-transform duration-500 select-none"
                   style={{ objectPosition: "center 20%" }}
-                  // @ts-ignore fetchpriority is valid HTML but not yet in React's TS types
+                  // @ts-ignore
                   fetchpriority="high"
                   decoding="async"
                   onError={(e) => {
@@ -723,39 +769,31 @@ export default function App() {
                 )}
               </div>
 
-              {/* FLOATING ICON 1: Python */}
               <div className="absolute -top-1 -left-1 w-12 h-12 rounded-2xl glass-panel flex items-center justify-center animate-float shadow-lg group">
                 <span className="text-xs font-mono font-bold text-indigo-500 hover:scale-110 duration-150">Py</span>
               </div>
-
-              {/* FLOATING ICON 2: React */}
               <div className="absolute top-1/2 -right-6 w-12 h-12 rounded-2xl glass-panel flex items-center justify-center animate-float-delayed shadow-lg">
                 <span className="text-xs font-mono font-bold text-cyan-400">React</span>
               </div>
-
-              {/* FLOATING ICON 3: AI Code */}
               <div className="absolute -bottom-4 right-1/4 w-12 h-12 rounded-2xl glass-panel flex items-center justify-center animate-float shadow-lg">
                 <Sparkles className="w-5 h-5 text-amber-500" />
               </div>
-
-              {/* FLOATING ICON 4: JS */}
               <div className="absolute top-1/3 -left-6 w-12 h-12 rounded-2xl glass-panel flex items-center justify-center animate-float-delayed shadow-lg">
                 <span className="text-xs font-mono font-bold text-yellow-500">JS</span>
               </div>
 
-              {/* Outer halo */}
               <div className="absolute inset-0 rounded-full border border-indigo-500/10 pointer-events-none scale-110"></div>
             </div>
           </div>
         </section>
 
-        {/* METRICS HUB / ACHIEVEMENT COUNTERS */}
+        {/* METRICS HUB */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[
-            { metric: "9.31", suffix: "", label: "Engineering CGPA", desc: "SRM University AP", icon: <GraduationCap className="text-indigo-500" /> },
-            { metric: "95.8", suffix: "%", label: "Intermediate Score", desc: "Top Core Excellence", icon: <Award className="text-amber-500" /> },
-            { metric: "10+", suffix: "", label: "Earned Certs", desc: "Harvard, Microsoft & SRM", icon: <CheckCircle2 className="text-emerald-500" /> },
-            { metric: "Hundreds", suffix: "+", label: "Developer Hours", desc: "C, Python, JS & SQL", icon: <Clock className="text-cyan-500" /> }
+            { metric: "9.31", suffix: "", label: t.metrics.cgpa, desc: t.metrics.cgpaDesc, icon: <GraduationCap className="text-indigo-500" /> },
+            { metric: "95.8", suffix: "%", label: t.metrics.intermediate, desc: t.metrics.intermediateDesc, icon: <Award className="text-amber-500" /> },
+            { metric: "10+", suffix: "", label: t.metrics.certs, desc: t.metrics.certsDesc, icon: <CheckCircle2 className="text-emerald-500" /> },
+            { metric: lang === 'hi' ? 'सैकड़ों' : "Hundreds", suffix: "+", label: t.metrics.hours, desc: t.metrics.hoursDesc, icon: <Clock className="text-cyan-500" /> }
           ].map((item, idx) => (
             <div 
               key={idx} 
@@ -782,7 +820,7 @@ export default function App() {
           ))}
         </section>
 
-        {/* COMPREHENSIVE STORY & ACADEMICS PROFILE */}
+        {/* ABOUT */}
         <section id="about" className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
           
           <div className="lg:col-span-12">
@@ -790,148 +828,161 @@ export default function App() {
               <div className="space-y-1">
                 <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                   <User className="w-3 h-3" />
-                  <span>Personal Brand Story</span>
+                  <span>{t.about.sectionLabel}</span>
                 </div>
                 <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                  Introduction & Core Competence
+                  {t.about.sectionTitle}
                 </h2>
               </div>
               <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
             </div>
           </div>
 
-          {/* Written Narrative */}
           <div className="lg:col-span-7 space-y-6">
             <h3 className="text-xl font-bold dark:text-neutral-100 text-neutral-900 leading-tight">
-              A Passionate Technologist Driven by Growth and Practical Execution
+              {t.about.h3}
             </h3>
-            <p className="text-neutral-600 dark:text-neutral-300 text-base leading-relaxed">
-              I am currently pursuing my <strong>Bachelor of Technology in Computer Science Engineering at SRM University AP (2025–2029)</strong>. Deeply passionate about the intersections of software architecture, artificial intelligence, and responsive web paradigms, I treat the web as a dynamic tool of utility, optimizing systems for accessibility, modularity, and speed.
-            </p>
-            <p className="text-neutral-600 dark:text-neutral-300 text-base leading-relaxed">
-              With a background anchored by academic excellence—demonstrated by my outstanding <strong>95.8% Intermediate core score</strong> and my current university GPA metrics of <strong>9.31 CGPA</strong>—I constantly seek avenues to deploy what I absorb. Whether that means building clean structural simulators for power grid organizations or securing certifications from global leaders like Harvard and Microsoft, I move with purpose.
-            </p>
+            <p className="text-neutral-600 dark:text-neutral-300 text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: t.about.p1 }} />
+            <p className="text-neutral-600 dark:text-neutral-300 text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: t.about.p2 }} />
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               <div className="p-4 rounded-xl border border-neutral-100 dark:border-neutral-900 bg-neutral-100/40 dark:bg-neutral-900/40">
-                <h4 className="font-semibold text-sm mb-2 text-indigo-600 dark:text-indigo-400">Core Engineering Drive</h4>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                  Translating complex theoretical data structures and computational patterns into real operational products.
-                </p>
+                <h4 className="font-semibold text-sm mb-2 text-indigo-600 dark:text-indigo-400">{t.about.card1Title}</h4>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">{t.about.card1Desc}</p>
               </div>
               <div className="p-4 rounded-xl border border-neutral-100 dark:border-neutral-900 bg-neutral-100/40 dark:bg-neutral-900/40">
-                <h4 className="font-semibold text-sm mb-2 text-indigo-600 dark:text-indigo-400">Continuous AI Integration</h4>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                  Leveraging modern large model tools and context engineering to streamline software development timelines.
-                </p>
+                <h4 className="font-semibold text-sm mb-2 text-indigo-600 dark:text-indigo-400">{t.about.card2Title}</h4>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">{t.about.card2Desc}</p>
               </div>
             </div>
           </div>
 
           {/* Academic Details Card */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="p-6 rounded-2xl glass-panel border border-neutral-200/80 dark:border-neutral-800/80 shadow-md space-y-6">
-              <h3 className="text-base font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+            <div className="p-8 rounded-3xl bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 shadow-2xl space-y-0">
+
+              <h3 className="text-base font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center gap-2 mb-6">
                 <GraduationCap className="w-4 h-4 text-indigo-500" />
-                <span>Academic Record</span>
+                <span>{t.about.academicRecord}</span>
               </h3>
 
-              {/* SRM School */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-white">
-                      SRM University AP
-                    </h4>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                      Bachelor of Technology (B.Tech), CSE
-                    </p>
-                  </div>
-                  <span className="font-mono text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded bg-indigo-50/50 dark:bg-indigo-950/40">
-                    2025 - 2029
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-neutral-400">CGPA:</span>
-                  <span className="font-extrabold text-neutral-900 dark:text-white">9.31 / 10.0</span>
-                </div>
-              </div>
-
-              {/* Intermediate */}
-              <div className="pt-4 border-t border-neutral-200/60 dark:border-neutral-800 space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-white">
-                      Intermediate Board Education
-                    </h4>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                      Advanced Mathematical & Scientific Curricula
-                    </p>
-                  </div>
-                  <span className="font-mono text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800/50">
-                    Completed
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-neutral-400">Cumulative Percentage:</span>
-                  <span className="font-extrabold text-neutral-900 dark:text-white">95.8%</span>
-                </div>
-              </div>
-
-              {/* Relevant Coursework List */}
-              <div className="pt-4 border-t border-neutral-200/60 dark:border-neutral-800 space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Selected Core Coursework:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    "Programming Fundamentals",
-                    "Data Structures",
-                    "Problem Solving",
-                    "Web Development",
-                    "Database Systems",
-                    "Software Engineering",
-                    "Artificial Intelligence"
-                  ].map((course, i) => (
-                    <span 
-                      key={i} 
-                      className="text-[10px] px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200/60 dark:bg-neutral-900 dark:hover:bg-neutral-800/80 text-neutral-700 dark:text-neutral-300 font-mono transition-colors"
-                    >
-                      {course}
+              {/* Entry 1 — B.Tech */}
+              <div className="relative pl-5 pb-8 border-l-2 border-indigo-500/30">
+                <span className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 ring-4 ring-neutral-900 flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </span>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] uppercase font-bold text-indigo-400 px-2 py-0.5 rounded bg-indigo-950/60 tracking-widest">
+                      2025 – Present
                     </span>
-                  ))}
+                    <span className="text-[10px] font-mono font-semibold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded tracking-wide">
+                      In Progress
+                    </span>
+                  </div>
+                  <h4 className="font-extrabold text-sm text-white leading-snug tracking-tight">
+                    Bachelor of Technology (B.Tech)
+                  </h4>
+                  <p className="text-xs font-semibold text-indigo-300">Computer Science &amp; Engineering</p>
+                  <p className="text-xs text-neutral-400 font-medium">SRM University AP — Andhra Pradesh, India</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">CGPA</span>
+                    <span className="text-lg font-extrabold text-white tabular-nums">9.31</span>
+                    <span className="text-xs text-neutral-600 font-mono">/ 10.0</span>
+                    <span className="ml-auto text-[10px] font-bold text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded font-mono">Top Performer</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {t.about.courses.map((course, i) => (
+                      <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono">
+                        {course}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
+
+              {/* Entry 2 — Intermediate */}
+              <div className="relative pl-5 pb-8 border-l-2 border-neutral-700">
+                <span className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-neutral-700 ring-4 ring-neutral-900 flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                </span>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] uppercase font-bold text-neutral-500 px-2 py-0.5 rounded bg-neutral-800 tracking-widest">
+                      2023 – 2025
+                    </span>
+                    <span className="text-[10px] font-mono font-semibold text-neutral-400 bg-neutral-800 px-2 py-0.5 rounded tracking-wide">
+                      Completed
+                    </span>
+                  </div>
+                  <h4 className="font-extrabold text-sm text-white leading-snug tracking-tight">
+                    Intermediate Education (MPC)
+                  </h4>
+                  <p className="text-xs font-semibold text-cyan-400">Mathematics · Physics · Chemistry</p>
+                  <p className="text-xs text-neutral-400 font-medium">Board of Intermediate Education, Andhra Pradesh</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">Score</span>
+                    <span className="text-lg font-extrabold text-white tabular-nums">95.8<span className="text-sm text-neutral-400">%</span></span>
+                    <span className="ml-auto text-[10px] font-bold text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded font-mono">Distinction</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Entry 3 — SSC */}
+              <div className="relative pl-5 border-l-2 border-neutral-800">
+                <span className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-neutral-800 ring-4 ring-neutral-900 flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-600"></span>
+                </span>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] uppercase font-bold text-neutral-600 px-2 py-0.5 rounded bg-neutral-800/60 tracking-widest">
+                      2022 – 2023
+                    </span>
+                    <span className="text-[10px] font-mono font-semibold text-neutral-500 bg-neutral-800/60 px-2 py-0.5 rounded tracking-wide">
+                      Completed
+                    </span>
+                  </div>
+                  <h4 className="font-extrabold text-sm text-white leading-snug tracking-tight">
+                    Secondary School Certificate (SSC)
+                  </h4>
+                  <p className="text-xs font-semibold text-neutral-400">Class X — General Studies</p>
+                  <p className="text-xs text-neutral-500 font-medium">Board of Secondary Education, Andhra Pradesh</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider">Score</span>
+                    <span className="text-lg font-extrabold text-neutral-300 tabular-nums">84<span className="text-sm text-neutral-500">%</span></span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
 
-        {/* INTERACTIVE SKILL MATRIX & FINDER */}
+        {/* SKILLS */}
         <section id="skills" className="space-y-6 md:space-y-8">
           
           <div className="flex flex-col md:flex-row items-baseline justify-between gap-4">
             <div className="space-y-1">
               <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                 <Code className="w-3 h-3" />
-                <span>Competency Finder</span>
+                <span>{t.skills.sectionLabel}</span>
               </div>
               <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                Technical Skills & Tools
+                {t.skills.sectionTitle}
               </h2>
             </div>
             <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
           </div>
 
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
-            I believe specialized tools empower developers to craft world-class applications. Use the intelligent search panel below to filter my engineering tools on the fly!
-          </p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">{t.skills.description}</p>
 
-          {/* Interactive Search Tool */}
           <div className="max-w-md relative">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
               <Search className="w-4 h-4" />
             </span>
             <input 
               type="text" 
-              placeholder="Search skills (e.g. Python, React, SQL, Git...)"
+              placeholder={t.skills.searchPlaceholder}
               value={skillSearchQuery}
               onChange={(e) => setSkillSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300/85 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/60 font-mono text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all dark:text-white text-neutral-800"
@@ -941,21 +992,18 @@ export default function App() {
                 onClick={() => setSkillSearchQuery('')}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-neutral-400 hover:text-indigo-500"
               >
-                Clear
+                {t.skills.clearBtn}
               </button>
             )}
           </div>
 
-          {/* Skills Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {skillCategories.map((cat, idx) => {
-              // Highlight matching skills
               const filteredSkills = cat.skills.filter(s => 
                 s.toLowerCase().includes(skillSearchQuery.trim().toLowerCase())
               );
               
               const isCategoryHidden = skillSearchQuery && filteredSkills.length === 0;
-
               if (isCategoryHidden) return null;
 
               return (
@@ -965,12 +1013,8 @@ export default function App() {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center gap-2.5 pb-2.5 border-b border-neutral-200/50 dark:border-white/5">
-                      <span className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800/80">
-                        {cat.icon}
-                      </span>
-                      <h3 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">
-                        {cat.name}
-                      </h3>
+                      <span className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800/80">{cat.icon}</span>
+                      <h3 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">{cat.name}</h3>
                     </div>
                     
                     <div className="flex flex-wrap gap-1.5">
@@ -997,25 +1041,23 @@ export default function App() {
           </div>
         </section>
 
-        {/* COMPREHENSIVE PROJECTS PORTFOLIO */}
+        {/* PROJECTS */}
         <section id="projects" className="space-y-8">
           
           <div className="flex flex-col md:flex-row items-baseline justify-between gap-4">
             <div className="space-y-1">
               <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                 <FolderDot className="w-3 h-3" />
-                <span>Proven Products</span>
+                <span>{t.projects.sectionLabel}</span>
               </div>
               <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                Project Showcase
+                {t.projects.sectionTitle}
               </h2>
             </div>
             <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
           </div>
 
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
-            A comprehensive overview of my software developments ranging from smart grid platforms to standalone utilities. Click any card to launch a simulated system sandbox in a terminal, or review source controls!
-          </p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">{t.projects.description}</p>
 
           {/* Project Filters */}
           <div className="flex flex-wrap gap-2 pt-2">
@@ -1029,12 +1071,12 @@ export default function App() {
                     : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
                 }`}
               >
-                {catName === 'All' ? 'All (6)' : catName}
+                {catName === 'All' ? t.projects.filterAll : catName}
               </button>
             ))}
           </div>
 
-          {/* SIMULATED TERMINAL PLAYGROUND (Rendered floating/flexible if active) */}
+          {/* TERMINAL SANDBOX */}
           {sandboxProject && (
             <div className="p-4 rounded-2xl bg-neutral-950 border border-neutral-800 text-neutral-100 font-mono text-xs shadow-2xl animate-fade-in space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
@@ -1044,33 +1086,28 @@ export default function App() {
                   <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
                   <span className="font-semibold text-[10px] text-neutral-400 uppercase tracking-widest ml-2 flex items-center gap-1">
                     <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Intelligent Console Sandbox</span>
+                    <span>{t.projects.consoleTitle}</span>
                   </span>
                 </div>
                 <button 
                   onClick={() => setSandboxProject(null)}
                   className="text-neutral-500 hover:text-white"
-                  title="Close Terminal Sandbox"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Console display logs area */}
               <div className="space-y-1 bg-neutral-950 p-2 rounded max-h-56 overflow-y-auto no-scrollbar scroll-smooth" aria-live="polite" role="log">
                 {sandboxOutput.map((log, lIdx) => (
-                  <div key={lIdx} className="leading-relaxed whitespace-pre-wrap">
-                    {log}
-                  </div>
+                  <div key={lIdx} className="leading-relaxed whitespace-pre-wrap">{log}</div>
                 ))}
               </div>
 
-              {/* Console command submission bar */}
               <form onSubmit={handleSandboxCommand} className="flex gap-2 p-1.5 bg-neutral-900 rounded-xl items-center">
-                <span className="text-neutral-500 pl-1">krishnateja@sandbox:~$</span>
+                <span className="text-neutral-500 pl-1">{t.projects.consolePrompt}</span>
                 <input 
                   type="text"
-                  placeholder="Type 'help', 'run', 'tech' or 'exit'..."
+                  placeholder={t.projects.consolePlaceholder}
                   value={sandboxInput}
                   onChange={(e) => setSandboxInput(e.target.value)}
                   className="flex-grow bg-transparent text-white border-none focus:outline-none focus:ring-0 text-xs font-mono"
@@ -1080,13 +1117,13 @@ export default function App() {
                   type="submit" 
                   className="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-[10px] font-bold text-white transition-colors"
                 >
-                  Execute
+                  {t.projects.executeBtn}
                 </button>
               </form>
             </div>
           )}
 
-          {/* Projects Portfolio Grid */}
+          {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
               <div 
@@ -1094,8 +1131,6 @@ export default function App() {
                 className="group relative flex flex-col justify-between p-6 rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900/40 hover:border-indigo-500/50 dark:hover:border-indigo-500/40 transition-all duration-300 shadow-sm hover:shadow-lg"
               >
                 <div className="space-y-4">
-                  
-                  {/* Category badging */}
                   <div className="flex justify-between items-center text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">
                     <span>{project.category}</span>
                     <span className="px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
@@ -1123,9 +1158,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Interactive Card Action Buttons */}
                 <div className="pt-6 mt-6 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-                  
                   <div className="flex items-center gap-2">
                     {project.github ? (
                       <a 
@@ -1133,30 +1166,27 @@ export default function App() {
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-850 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-all"
-                        title="GitHub Code Repository"
                       >
                         <Github className="w-4 h-4" />
                       </a>
                     ) : (
-                      <span className="text-[10px] font-mono text-neutral-400">Academic Demo</span>
+                      <span className="text-[10px] font-mono text-neutral-400">{t.projects.academicDemo}</span>
                     )}
 
                     <button
                       onClick={() => launchSandbox(project)}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold font-mono bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-400 dark:hover:bg-indigo-950 transition-colors"
-                      title="Launch simulated port execution CLI"
                     >
                       <Terminal className="w-3.5 h-3.5" />
-                      <span>Sandbox CLI</span>
+                      <span>{t.projects.sandboxCLI}</span>
                     </button>
                   </div>
 
                   <button
                     onClick={() => setSelectedProject(project)}
                     className="inline-flex items-center gap-0.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-                    title="Read extensive features breakdown"
                   >
-                    <span>Details</span>
+                    <span>{t.projects.details}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -1165,7 +1195,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* DETAILED PROJECT INFO POPUP SIDE DRAWER */}
+        {/* PROJECT DETAIL MODAL */}
         {selectedProject && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
             <div className="w-full max-w-lg rounded-2xl glass-panel p-6 border border-neutral-200 dark:border-neutral-800 shadow-2xl relative block animate-slide-up bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
@@ -1179,19 +1209,14 @@ export default function App() {
 
               <div className="space-y-4">
                 <span className="text-[10px] font-mono font-bold uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
-                  Project breakdown
+                  {t.projects.projectBreakdown}
                 </span>
 
-                <h3 className="text-xl font-bold dark:text-white text-neutral-950">
-                  {selectedProject.title}
-                </h3>
-
-                <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
-                  {selectedProject.description}
-                </p>
+                <h3 className="text-xl font-bold dark:text-white text-neutral-950">{selectedProject.title}</h3>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">{selectedProject.description}</p>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Key Features Engineered:</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">{t.projects.keyFeatures}</span>
                   <ul className="text-xs space-y-1.5 pl-4 list-disc text-neutral-600 dark:text-neutral-300">
                     {selectedProject.features.map((feat, idx) => (
                       <li key={idx}>{feat}</li>
@@ -1200,7 +1225,7 @@ export default function App() {
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Project Target Status:</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">{t.projects.targetStatus}</span>
                   <div className="p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/30 text-xs font-mono text-indigo-600 dark:text-indigo-300">
                     {selectedProject.metrics}
                   </div>
@@ -1209,9 +1234,7 @@ export default function App() {
                 <div className="pt-4 flex justify-between gap-3 items-center">
                   <div className="flex flex-wrap gap-1">
                     {selectedProject.techStack.slice(0, 3).map((t, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
-                        {t}
-                      </span>
+                      <span key={i} className="text-[10px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">{t}</span>
                     ))}
                   </div>
 
@@ -1221,10 +1244,10 @@ export default function App() {
                         href={selectedProject.github}
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors inline-flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors inline-flex items-center gap-1.5 text-white"
                       >
                         <Github className="w-3.5 h-3.5" />
-                        <span>Source Code</span>
+                        <span>{t.projects.sourceCode}</span>
                       </a>
                     )}
                     <button 
@@ -1235,7 +1258,7 @@ export default function App() {
                       className="px-4 py-2 rounded-xl text-xs font-semibold border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors inline-flex items-center gap-1"
                     >
                       <Terminal className="w-3.5 h-3.5" />
-                      <span>Launch Sandbox</span>
+                      <span>{t.projects.launchSandbox}</span>
                     </button>
                   </div>
                 </div>
@@ -1244,27 +1267,24 @@ export default function App() {
           </div>
         )}
 
-        {/* DIRECT CERTIFICATIONS SHIELD */}
+        {/* CERTIFICATIONS */}
         <section id="certifications" className="space-y-8">
           
           <div className="flex flex-col md:flex-row items-baseline justify-between gap-4">
             <div className="space-y-1">
               <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                 <Award className="w-3 h-3" />
-                <span>Verified Credentials</span>
+                <span>{t.certifications.sectionLabel}</span>
               </div>
               <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                Academic & Industry Achievements
+                {t.certifications.sectionTitle}
               </h2>
             </div>
             <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
           </div>
 
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
-            I am highly committed to structured learning paths. Below are the registered certifications I have earned alongside university programs.
-          </p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">{t.certifications.description}</p>
 
-          {/* Certifications Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {certificationsList.map((cert) => (
               <div 
@@ -1279,13 +1299,8 @@ export default function App() {
                     <span className="text-xs font-mono text-neutral-400">{cert.date}</span>
                   </div>
                   
-                  <h3 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-neutral-100 line-clamp-2">
-                    {cert.title}
-                  </h3>
-                  
-                  <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                    {cert.issuer}
-                  </p>
+                  <h3 className="font-bold text-sm tracking-tight text-neutral-900 dark:text-neutral-100 line-clamp-2">{cert.title}</h3>
+                  <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{cert.issuer}</p>
                 </div>
 
                 <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
@@ -1293,43 +1308,38 @@ export default function App() {
                     <button
                       onClick={() => triggerCopy(cert.verifyCode!, "Code")}
                       className="text-[10px] font-mono text-neutral-400 hover:text-indigo-500 dark:hover:text-indigo-400"
-                      title="Click to copy registration ID"
                     >
                       ID: {cert.verifyCode}
                     </button>
                   ) : (
                     <span className="text-[10px] font-mono text-neutral-400">-</span>
                   )}
-                  
-                  <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Verified ✓</span>
+                  <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{t.certifications.verified}</span>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* TIMELINE METRICS ROW */}
+        {/* TIMELINE */}
         <section id="experience" className="space-y-8">
           
           <div className="flex flex-col md:flex-row items-baseline justify-between gap-4">
             <div className="space-y-1">
               <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                 <TrendingUp className="w-3 h-3" />
-                <span>Professional Development</span>
+                <span>{t.timeline.sectionLabel}</span>
               </div>
               <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                Academic & Learning Journey
+                {t.timeline.sectionTitle}
               </h2>
             </div>
             <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
           </div>
 
-          {/* Vercel-like Elegant vertical timeline lines */}
           <div className="relative border-l border-neutral-200/80 dark:border-white/5 pl-6 sm:pl-10 ml-2 sm:ml-4 space-y-10">
             {timelineEvents.map((ev) => (
               <div key={ev.id} className="relative group">
-                
-                {/* Concentric node point */}
                 <span className="absolute -left-[31px] sm:-left-[47px] top-1.5 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-900 border-2 border-neutral-400 dark:border-neutral-700 ring-4 ring-neutral-50 dark:ring-neutral-950 group-hover:border-indigo-500 transition-colors">
                   <span className="h-1.5 w-1.5 sm:h-2 w-2 rounded-full bg-neutral-500 dark:bg-neutral-400 group-hover:bg-indigo-500 transition-colors"></span>
                 </span>
@@ -1341,24 +1351,16 @@ export default function App() {
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-extrabold tracking-tight text-neutral-950 dark:text-white">
-                    {ev.title}
-                  </h3>
-
-                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-                    {ev.subtitle}
-                  </p>
-
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-3xl leading-relaxed">
-                    {ev.description}
-                  </p>
+                  <h3 className="text-base sm:text-lg font-extrabold tracking-tight text-neutral-950 dark:text-white">{ev.title}</h3>
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">{ev.subtitle}</p>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-3xl leading-relaxed">{ev.description}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* RECRUITER CONTACT REGISTRATION */}
+        {/* CONTACT */}
         <section id="contact" className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
           
           <div className="lg:col-span-12">
@@ -1366,77 +1368,64 @@ export default function App() {
               <div className="space-y-1">
                 <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
                   <Send className="w-3 h-3" />
-                  <span>Interactive Connection</span>
+                  <span>{t.contact.sectionLabel}</span>
                 </div>
                 <h2 className="text-2xl md:text-3xl sm:text-4xl font-black tracking-tight text-neutral-950 dark:text-white">
-                  Let's Build Together
+                  {t.contact.sectionTitle}
                 </h2>
               </div>
               <div className="h-[2px] flex-grow bg-neutral-200 dark:bg-neutral-800 rounded"></div>
             </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl mt-1 leading-normal">
-              Whether you are an industry recruiter, startup founder, technical coordinator, or hackathon teammate, feel free to send a message below. It's saved on this device for your reference — for a guaranteed response, please also reach out via email, phone, or LinkedIn.
-            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl mt-1 leading-normal">{t.contact.description}</p>
           </div>
 
           {/* Social Channels Details */}
           <div className="lg:col-span-4 space-y-6">
             <div className="p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/30 space-y-6">
-              <h3 className="font-bold text-sm tracking-wide uppercase text-neutral-400">
-                Direct Touch-Points
-              </h3>
+              <h3 className="font-bold text-sm tracking-wide uppercase text-neutral-400">{t.contact.touchpoints}</h3>
               
               <div className="space-y-4">
-                
-                {/* Email link */}
                 <div className="flex items-start gap-3">
                   <span className="p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
                     <Mail className="w-4 h-4" />
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Email Channel</div>
+                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">{t.contact.emailLabel}</div>
                     <button 
                       onClick={() => triggerCopy("konakalakrishnateja01@gmail.com", "Email")}
                       className="text-sm font-bold truncate text-neutral-900 hover:text-indigo-500 dark:text-neutral-100 dark:hover:text-indigo-400 font-mono text-left w-full block"
-                      title="Copy email link to clipboard"
                     >
                       konakalakrishnateja01@gmail.com
                     </button>
                   </div>
                 </div>
 
-                {/* Telephone */}
                 <div className="flex items-start gap-3">
                   <span className="p-2 rounded-xl bg-orange-50/50 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400">
                     <Phone className="w-4 h-4" />
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Phone Contact</div>
+                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">{t.contact.phoneLabel}</div>
                     <button
                       onClick={() => triggerCopy("+919392101400", "Phone")}
                       className="text-sm font-bold text-neutral-900 hover:text-indigo-500 dark:text-neutral-100 dark:hover:text-indigo-400 font-mono text-left block w-full"
-                      title="Copy contact number to clipboard"
                     >
                       +91 9392101400
                     </button>
                   </div>
                 </div>
 
-                {/* Geography */}
                 <div className="flex items-start gap-3">
                   <span className="p-2 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-500 dark:text-emerald-400">
                     <MapPin className="w-4 h-4" />
                   </span>
                   <div>
-                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Location Hub</div>
-                    <p className="text-sm font-bold dark:text-neutral-100 text-neutral-900">
-                      Vijayawada, AP, India
-                    </p>
+                    <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">{t.contact.locationLabel}</div>
+                    <p className="text-sm font-bold dark:text-neutral-100 text-neutral-900">{t.contact.location}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Submissions review tray toggle */}
               {submissionsHistory.length > 0 && (
                 <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800">
                   <button
@@ -1445,18 +1434,17 @@ export default function App() {
                   >
                     <span className="flex items-center gap-1.5 select-none">
                       <History className="w-3.5 h-3.5" />
-                      <span>Transmission Logs ({submissionsHistory.length})</span>
+                      <span>{t.contact.transmissionLogs} ({submissionsHistory.length})</span>
                     </span>
-                    <span>{showHistory ? 'Hide' : 'Show'}</span>
+                    <span>{showHistory ? t.contact.hide : t.contact.show}</span>
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Simulated Transmission history render */}
             {showHistory && submissionsHistory.length > 0 && (
               <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/70 max-h-48 overflow-y-auto space-y-3 no-scrollbar animate-fade-in">
-                <span className="text-[10px] uppercase font-bold text-neutral-400 font-mono">My Secure Dispatches:</span>
+                <span className="text-[10px] uppercase font-bold text-neutral-400 font-mono">{t.contact.dispatchesLabel}</span>
                 {submissionsHistory.map((sub) => (
                   <div key={sub.id} className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 text-[11px] space-y-1">
                     <div className="flex justify-between text-neutral-500 font-mono text-[9px]">
@@ -1471,105 +1459,95 @@ export default function App() {
             )}
           </div>
 
-          {/* Connect Dispatcher Form */}
-          <div className="lg:col-span-8 p-6 sm:p-8 rounded-2xl glass-panel border border-neutral-200 dark:border-neutral-800 shadow-md">
+          {/* Contact Form */}
+          <div className="lg:col-span-8 p-8 rounded-3xl bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 shadow-2xl">
             <form onSubmit={handleContactSubmit} className="space-y-4">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Full name input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">Full Name *</label>
+                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">{t.contact.nameLabel}</label>
                   <input 
                     type="text"
                     required
-                    placeholder="e.g. Rachel Adams"
+                    placeholder={t.contact.namePlaceholder}
                     value={contactForm.name}
                     onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white/70 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
+                    className="w-full px-4 py-3 rounded-xl text-sm border border-neutral-800 bg-neutral-950 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                   />
                 </div>
 
-                {/* Email address */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">Email Address *</label>
+                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">{t.contact.emailFieldLabel}</label>
                   <input 
                     type="email"
                     required
-                    placeholder="e.g. adams@comp.com"
+                    placeholder={t.contact.emailPlaceholder}
                     value={contactForm.email}
                     onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white/70 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
+                    className="w-full px-4 py-3 rounded-xl text-sm border border-neutral-800 bg-neutral-950 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Role dropdown */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">My Intent Role</label>
+                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">{t.contact.roleLabel}</label>
                   <select
                     value={contactForm.role}
                     onChange={(e) => setContactForm({...contactForm, role: e.target.value})}
-                    className="w-full px-3 py-2 rounded-xl text-xs sm:text-sm border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
+                    className="w-full px-4 py-3 rounded-xl text-sm border border-neutral-800 bg-neutral-950 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                   >
-                    <option value="Recruiter">Technical Recruiter</option>
-                    <option value="Coordinated Mentor">Internship Coordinator</option>
-                    <option value="Startup Founder">Startup Founder</option>
-                    <option value="Hackathon Judge">Hackathon Judge</option>
-                    <option value="Peer">Peer Student / Say Hello</option>
+                    {t.contact.roles.map((role, i) => (
+                      <option key={i} value={role}>{role}</option>
+                    ))}
                   </select>
                 </div>
 
-                {/* Company name */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">Company / Affiliation</label>
+                  <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">{t.contact.companyLabel}</label>
                   <input 
                     type="text"
-                    placeholder="e.g. OpenAI / SRM AP"
+                    placeholder={t.contact.companyPlaceholder}
                     value={contactForm.company}
                     onChange={(e) => setContactForm({...contactForm, company: e.target.value})}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white/70 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
+                    className="w-full px-4 py-3 rounded-xl text-sm border border-neutral-800 bg-neutral-950 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Message */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">Message Content *</label>
+                <label className="text-[10px] font-mono tracking-widest uppercase font-bold text-neutral-400">{t.contact.messageLabel}</label>
                 <textarea 
                   required
                   rows={4}
-                  placeholder="Hi Krishna, review of APTRANSCO looks fantastic! Let's arrange a call..."
+                  placeholder={t.contact.messagePlaceholder}
                   value={contactForm.message}
                   onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
-                  className="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white/70 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
+                  className="w-full px-4 py-3 rounded-xl text-sm border border-neutral-800 bg-neutral-950 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all resize-none"
                 />
               </div>
 
-              {/* Submit button inside form */}
               <div className="pt-2">
                 {formStatus === 'success' ? (
                   <div className="p-3.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 rounded-xl text-xs font-semibold flex items-center gap-2 border border-emerald-500/20 shadow-inner">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span>Saved locally on this device. For a guaranteed reply, please also email or message Krishna directly using the links provided.</span>
+                    <span>{t.contact.successMsg}</span>
                   </div>
                 ) : (
                   <button 
                     type="submit"
                     disabled={formStatus === 'submitting'}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-neutral-950 text-white dark:bg-white dark:text-black hover:bg-neutral-900 dark:hover:bg-neutral-100 shadow transition-all duration-200"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-neutral-950 text-white dark:bg-white dark:text-black hover:bg-neutral-900 dark:hover:bg-neutral-100 shadow transition-all duration-200 border border-neutral-800 dark:border-transparent"
                   >
                     {formStatus === 'submitting' ? (
                       <span className="flex items-center gap-2">
                         <span className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></span>
-                        <span>Securing Connection Tunnel...</span>
+                        <span>{t.contact.submittingBtn}</span>
                       </span>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>Dispatch Verified Networking Transmission</span>
+                        <span>{t.contact.submitBtn}</span>
                       </>
                     )}
                   </button>
@@ -1580,42 +1558,33 @@ export default function App() {
         </section>
       </main>
 
-      {/* DETAILED PRINTABLE RESUME CV MODAL */}
+      {/* RESUME MODAL */}
       {resumeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
           <div className="w-full max-w-3xl rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white text-neutral-950 p-6 sm:p-10 shadow-2xl relative block animate-slide-up no-print">
             
-            {/* Modal Controls */}
             <div className="absolute top-4 right-4 flex items-center gap-2 no-print">
               <button
                 onClick={() => window.print()}
                 className="p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 transition-colors uppercase font-mono text-[10px] font-bold text-neutral-700 flex items-center gap-1.5 border"
-                title="Trigger print styles to save as professional PDF"
               >
                 <Download className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Save PDF / Print</span>
+                <span>{t.resume.savePDF}</span>
               </button>
               <button 
                 onClick={() => setResumeOpen(false)}
                 className="p-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-500 hover:text-neutral-950 transition-all"
-                title="Return to primary app view"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Printable Frame Area */}
             <div className="space-y-6 text-left selection:bg-neutral-100 selection:text-black">
               
-              {/* Header printable block */}
               <div className="border-b-2 border-neutral-800 pb-5 space-y-2">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
-                  <h2 className="text-3xl font-extrabold tracking-tight font-sans text-black">
-                    KONAKALA KRISHNA TEJA
-                  </h2>
-                  <span className="text-[11px] font-mono text-neutral-500 uppercase tracking-widest font-bold">
-                    Computer Science Undergraduate
-                  </span>
+                  <h2 className="text-3xl font-extrabold tracking-tight font-sans text-black">KONAKALA KRISHNA TEJA</h2>
+                  <span className="text-[11px] font-mono text-neutral-500 uppercase tracking-widest font-bold">Computer Science Undergraduate</span>
                 </div>
                 <p className="text-xs text-neutral-600 font-medium">
                   Vijayawada, Andhra Pradesh, India | +91 9392101400 | konakalakrishnateja01@gmail.com
@@ -1625,66 +1594,50 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Profile summary printable block */}
               <div className="space-y-2">
-                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">
-                  Professional Statement
-                </h3>
-                <p className="text-xs text-neutral-700 leading-relaxed">
-                  Highly motivated Computer Science Engineering student at SRM University AP with a strong passion for software development, artificial intelligence, and responsive web systems. Eager to solve real-world problems and deliver structured digital innovations.
-                </p>
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">{t.resume.professionalStatement}</h3>
+                <p className="text-xs text-neutral-700 leading-relaxed">{t.resume.bio}</p>
               </div>
 
-              {/* Education printable block */}
               <div className="space-y-3">
-                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">
-                  Education History
-                </h3>
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">{t.resume.educationHistory}</h3>
                 
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between font-bold text-black">
-                    <span>SRM UNIVERSITY AP</span>
-                    <span>2025 – 2029 (Ongoing)</span>
+                    <span>{t.resume.srmTitle}</span>
+                    <span>{t.resume.srmPeriod}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-neutral-600">
-                    <span>B.Tech in Computer Science Engineering</span>
-                    <span>Current Cumulative CGPA: 9.31/10.0</span>
+                    <span>{t.resume.srmDegree}</span>
+                    <span>{t.resume.cgpaLabel}</span>
                   </div>
-                  <p className="text-[10px] text-neutral-500">
-                    Relevant Modules: Data Structures, Problem Solving, Web Development, Programming Fundamentals, Software Engineering.
-                  </p>
+                  <p className="text-[10px] text-neutral-500">{t.resume.srmCourses}</p>
                 </div>
 
                 <div className="space-y-1 text-xs pt-1 border-t border-dashed border-neutral-100">
                   <div className="flex justify-between font-bold text-black">
-                    <span>INTERMEDIATE BOARD EDUCATION</span>
-                    <span>Completed</span>
+                    <span>{t.resume.intTitle}</span>
+                    <span>{t.resume.intStatus}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-neutral-600">
-                    <span>Advanced Scientific Core Stream</span>
-                    <span>Cumulative Outstanding Score: 95.8%</span>
+                    <span>{t.resume.intStream}</span>
+                    <span>{t.resume.intScore}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Skills printable block */}
               <div className="space-y-2">
-                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">
-                  Technical Skill Directory
-                </h3>
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">{t.resume.skillsTitle}</h3>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs pl-2">
-                  <div className="space-x-1.5"><strong className="font-bold">Languages:</strong><span className="text-neutral-700">Python, C, JavaScript, HTML5, CSS3, SQL, C#</span></div>
-                  <div className="space-x-1.5"><strong className="font-bold">Web Ops:</strong><span className="text-neutral-700">Frontend, Responsive Layout, Bootstrap, Tailwind, React</span></div>
-                  <div className="space-x-1.5"><strong className="font-bold">AI Workflow:</strong><span className="text-neutral-700">Prompting, AI Agents, Builder suites, Productivity tools</span></div>
-                  <div className="space-x-1.5"><strong className="font-bold">Tools:</strong><span className="text-neutral-700">VS Code, Git, GitHub, Figma, Canva</span></div>
+                  <div><strong className="font-bold">Languages:</strong> <span className="text-neutral-700">Python, C, JavaScript, HTML5, CSS3, SQL, C#</span></div>
+                  <div><strong className="font-bold">Web Ops:</strong> <span className="text-neutral-700">Frontend, Responsive Layout, Bootstrap, Tailwind, React</span></div>
+                  <div><strong className="font-bold">AI Workflow:</strong> <span className="text-neutral-700">Prompting, AI Agents, Builder suites, Productivity tools</span></div>
+                  <div><strong className="font-bold">Tools:</strong> <span className="text-neutral-700">VS Code, Git, GitHub, Figma, Canva</span></div>
                 </div>
               </div>
 
-              {/* Outstanding Projects printable block */}
               <div className="space-y-3">
-                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">
-                  Selected Engineering Projects
-                </h3>
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">{t.resume.projectsTitle}</h3>
 
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between font-bold text-black">
@@ -1692,7 +1645,7 @@ export default function App() {
                     <span>HTML, CSS, JS, Dashboard UI</span>
                   </div>
                   <p className="text-[11px] text-neutral-700 leading-normal">
-                    Designed an optimized digital simulation portal for future power grid analysis. Outlined user status controls and active loading visualizations.
+                    Designed an optimized digital simulation portal for future power grid analysis with interactive loading visualizations.
                   </p>
                 </div>
 
@@ -1707,11 +1660,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Certifications and achievements printable block */}
               <div className="space-y-2">
-                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">
-                  Registered Certifications & Achievements
-                </h3>
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-neutral-500 border-b border-neutral-200 pb-1">{t.resume.certsTitle}</h3>
                 <ul className="text-[11px] list-disc pl-4 space-y-1 text-neutral-700">
                   <li>Harvard CS50's Introduction to Programming with Python (HarvardX)</li>
                   <li>Foundational C# with Microsoft (freeCodeCamp Partnership)</li>
@@ -1720,34 +1670,31 @@ export default function App() {
                 </ul>
               </div>
 
-              {/* Bottom Print Disclaimer */}
               <div className="pt-4 border-t border-dashed border-neutral-250 text-center text-[10px] text-neutral-400 no-print flex items-center justify-center gap-1">
                 <Info className="w-3 h-3 text-indigo-500" />
-                <span>Tip: Click 'Save PDF / Print' to save this exact page as a pristine standard executive resume profile.</span>
+                <span>{t.resume.printTip}</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* FOOTER METADATA */}
+      {/* FOOTER */}
       <footer id="main-footer" className="w-full border-t border-neutral-200/50 dark:border-white/5 bg-neutral-100 dark:bg-neutral-950 py-12 text-center text-xs text-neutral-500 dark:text-neutral-400 space-y-4">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-left space-y-1 text-center sm:text-left">
             <span className="font-semibold text-neutral-900 dark:text-white block sm:inline mr-2">Konakala Krishna Teja</span>
-            <span>© 2026. Certified SRM CSE Student Portfolio.</span>
+            <span>{t.footer.copyright}</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="mailto:konakalakrishnateja01@gmail.com" className="hover:text-indigo-500 transition-colors" title="Send Email">Email Channel</a>
+            <a href="mailto:konakalakrishnateja01@gmail.com" className="hover:text-indigo-500 transition-colors">Email</a>
             <span>•</span>
             <a href="https://www.linkedin.com/in/krishna-teja-konakala-995b1432b" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-500 transition-colors">LinkedIn</a>
             <span>•</span>
             <a href="https://github.com/krishnakonakala" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-500 transition-colors">GitHub</a>
           </div>
         </div>
-        <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
-          Crafted with React, Tailwind CSS 4.0 and Lucide icons. Authorized for technical recruitment and internship assessment.
-        </p>
+        <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{t.footer.crafted}</p>
       </footer>
     </div>
   );
