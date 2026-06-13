@@ -697,7 +697,7 @@ export default function App() {
 
           {/* Profile Frame with Orbiting Badges */}
           <div className="lg:col-span-5 flex justify-center items-center relative">
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full flex items-center justify-center p-3 border-2 border-dashed border-neutral-200/80 dark:border-white/10 ">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full flex items-center justify-center p-3 border-2 border-dashed border-neutral-200/80 dark:border-white/10">
               
               {/* Actual Professional photograph container */}
               <div className="w-full h-full rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-800 shadow-2xl relative group bg-neutral-100 dark:bg-neutral-900">
@@ -706,8 +706,8 @@ export default function App() {
                   alt="Portrait of Konakala Krishna Teja"
                   width={800}
                   height={1376}
-                className="w-full h-full object-cover transition-transform duration-500 select-none"
-style={{ objectPosition: "center 20%" }}
+                  className="w-full h-full object-cover transition-transform duration-500 select-none"
+                  style={{ objectPosition: "center 20%" }}
                   // @ts-ignore fetchpriority is valid HTML but not yet in React's TS types
                   fetchpriority="high"
                   decoding="async"
@@ -721,15 +721,6 @@ style={{ objectPosition: "center 20%" }}
                     KT
                   </div>
                 )}
-                
-                {/* Tech HUD overlay on hover */}
-                <div className="absolute inset-0 bg-neutral-950/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-300 p-4 text-center">
-                  <div className="p-2 rounded-full bg-indigo-600 mb-2">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-semibold text-sm">CGPA: 9.31</span>
-                  <span className="text-xs text-neutral-300">SRM CSE Undergraduate</span>
-                </div>
               </div>
 
               {/* FLOATING ICON 1: Python */}
